@@ -1,11 +1,11 @@
 # views-react
 
-> An Express like API to mixin `http.Response` to render React JSX Views.
-
-This module provides a `ViewsReact` class to extend or mixin, that provides the
+This module provides a `ViewsReact` class to extend or mixin, that exposes the
 necessary methods to compile and render React components from an HTTP response.
 
-Inspiration from [express-react-views](https://github.com/reactjs/express-react-views)
+Inspiration from
+[express-react-views](https://github.com/reactjs/express-react-views). This
+package aims to offer a similar experience, but without Express.
 
 ## Install
 
@@ -13,23 +13,34 @@ Inspiration from [express-react-views](https://github.com/reactjs/express-react-
 
 ## Usage
 
+Views are JSX files automatically transpiled by `babel-register`, stored in the
+`views` directory (as configured view `.views()` or `options.views`).
+
+The default value is `./views` in the current working directory.
+
+`views/index.jsx`
 ```js
-const ViewsReact = require('views-react');
-const finalhandler = require('finalhandler');
+var React = require('react');
 
-const views = new ViewsReact();
+var HelloMessage = React.createClass({
+  render: function() {
+    return (<div>Hello {this.props.name}</div>);
+  }
+});
 
-// change views directory with .views()
-views.views(__dirname + '/app/views');
+module.exports = HelloMessage;
+```
+
+`server.js`
+
+```js
+var path = require('path');
+
+var views = (new require('..')).views(path.join(__dirname, 'views'));
 
 require('http').createServer((req, res) => {
-  var next = finalhandler(req, res);
-
   res.render = views.render.bind(views, req, res, next);
-  res.render('index', { title: 'Foo' });
-
-  // Or:
-  // views.render(req, res, next, 'index', { title: 'Foo' });
+  res.render('index');
 }).listen(3000);
 ```
 
@@ -49,26 +60,7 @@ app.get('/', (req, res, next) => {
 });
 ```
 
-### Views
-
-Views are JSX files automatically transpiled by `babel-register`, stored in the
-`views` directory (as configured view `.views()` or `options.views`). The
-default value is `./views` in the current working directory.
-
-`views/index.jsx`
-```js
-var React = require('react');
-
-var HelloMessage = React.createClass({
-  render: function() {
-    return (<div>Hello {this.props.name}</div>);
-  }
-});
-
-module.exports = HelloMessage;
-```
-
-## Layouts
+### Layouts
 
 You can compose your views to decorate your component with a layout.
 
@@ -107,20 +99,63 @@ module.exports = React.createClass({
 });
 ```
 
+## Documentation
+
 ### new ViewsReact(options)
 
 - `options`
   - `options.views`: Views directory to lookup from when rendering (default: 'view/')
   - `options.engine`: View extension to use (default: `jsx`)
   - `options.doctype`: Doctype to use with HTML markup (default: `<!doctype html>`)
+  - `options.renderToString`: When truthy, force the output to be done with `renderToString` (default: `renderToStaticMarkup`)
 
-### res.render(view, props)
+### .render(req, res, next, view, props)
+
+Ends the response with `Homepage` component HTML markup
 
 ```js
+res.render = views.render.bind(views, req, res, next);
 res.render('homepage', {
   title: 'Homepage',
   description: 'Server side react rendering'
 });
+```
+
+### .views(path)
+
+Set the views directory to seach template from.
+
+### .engine(ext)
+
+Get or set the file extension to use when loading views.
+
+### .react(filename, options)
+
+Require the transpiled component by Babel and creates a new React
+element. The resulting HTML is sent back to the client.
+
+
+## Tests
+
+Run with `npm test`.
+
+```js
+var views = new ViewsReact();
+views.views(path.join(__dirname, 'views'));
+
+var app = http.createServer((req, res) => {
+  res.render = views.render.bind(views, req, res, done);
+  res.render('index', { title: 'Foo' });
+});
+
+request(app)
+  .get('/')
+  .expect(/<!doctype html>/)
+  .expect(/<html/)
+  .expect(/<head>/)
+  .expect(/Foo<\/title>/)
+  .expect(/Hello/)
+  .expect(200, done);
 ```
 
 ---

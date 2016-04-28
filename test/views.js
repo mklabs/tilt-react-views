@@ -27,5 +27,4 @@ describe('ViewsReact', () => {
       .expect(/Hello/)
       .expect(200, done);
   });
-
 });

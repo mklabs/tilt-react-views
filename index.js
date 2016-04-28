@@ -44,7 +44,9 @@ module.exports = class ViewsReact {
     // Transpiled ES6 may export components as { default: Component }
     component = component.default || component;
     var html = options.doctype || '<!doctype html>'
-    html += ReactDOM.renderToStaticMarkup(React.createElement(component, options));
+    var element = React.createElement(component, options);
+    var method = this.options.renderToString ? 'renderToString' : 'renderToStaticMarkup';
+    html += ReactDOM[method](element);
     return html;
   }
 }
