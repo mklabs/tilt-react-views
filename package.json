@@ -1,6 +1,6 @@
 {
-  "name": "views-react",
-  "version": "1.0.0",
+  "name": "tilt-react-views",
+  "version": "0.0.1",
   "description": "An Express like API to render React JSX Views with bare http.Response",
   "main": "index.js",
   "directories": {
@@ -11,12 +11,11 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/mklabs/views-react.git"
+    "url": "git+https://github.com/mklabs/tilt-views-react.git"
   },
-  "author": "mklabs",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/mklabs/views-react/issues"
+    "url": "https://github.com/mklabs/tilt-views-react/issues"
   },
   "homepage": "https://github.com/mklabs/views-react#readme",
   "devDependencies": {

@@ -1,10 +1,9 @@
 const path     = require('path');
 const debug    = require('debug')('views-react');
-const babel    = require('babel-register');
 const React    = require('react');
 const ReactDOM = require('react-dom/server');
 
-module.exports = class ViewsReact {
+module.exports = class ReactViews {
 
   constructor(options) {
     this.options = options || {};
@@ -14,7 +13,7 @@ module.exports = class ViewsReact {
 
   views(path) {
     if (!path) throw new Error('Missing path');
-    babel(Object.assign({only: path}, { presets: [ 'react', 'es2015', ] }));
+    require('babel-register')(Object.assign({only: path}, { presets: [ 'react', 'es2015', ] }));
     debug('set views', path);
     this._views = path;
     return this;

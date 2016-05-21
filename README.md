@@ -1,6 +1,6 @@
-# views-react
+# tilt-views-react
 
-This module provides a `ViewsReact` class to extend or mixin, that exposes the
+This module provides a `ReactViews` class to extend or mixin, that exposes the
 necessary methods to compile and render React components from an HTTP response.
 
 Inspiration from
@@ -9,7 +9,7 @@ package aims to offer a similar experience, but without Express.
 
 ## Install
 
-    npm i views-react -S
+    npm i mklabs/tilt-react-views -S
 
 ## Usage
 
@@ -34,9 +34,12 @@ module.exports = HelloMessage;
 `server.js`
 
 ```js
-var path = require('path');
+const path       = require('path');
+const ReactViews = require('tilt-react-views');
 
-var views = (new require('..')).views(path.join(__dirname, 'views'));
+var views = new ReactViews({
+  views: path.join(__dirname, 'views')
+});
 
 require('http').createServer((req, res) => {
   res.render = views.render.bind(views, req, res, next);
@@ -48,7 +51,7 @@ Or within the stack of middleware, prior to the router handlers. This adds a
 `.render()` method to the response object.
 
 ```js
-const views = new ViewsReact();
+const views = new ReactViews();
 app.use((res, res, next) => {
   res.render = views.render.bind(views, req, res, next);
   next();
