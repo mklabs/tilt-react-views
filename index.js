@@ -20,13 +20,12 @@ module.exports = class ReactViews {
     debug('Set views', paths);
 
     require('babel-register')({
-      presets: [ 'react', 'es2015' ]
-
-      // TODO: implement only regex or fn to filter everything not based on this._views
-      // only: (filename) => {
-      //   debug('Babel only %s filename', filename);
-      //   return false;
-      // }
+      presets: [ 'react', 'es2015' ],
+      only: (filename) => {
+        return !!paths.find((dir) => {
+          return filename.indexOf(dir) === 0;
+        });
+      }
     });
 
     this._views = paths;
