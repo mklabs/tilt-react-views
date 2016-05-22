@@ -42,11 +42,13 @@ module.exports = class ReactViews {
     options = options || {};
 
     debug('Rendering view %s', view);
-    res.setHeader('Content-Type', 'text/html');
 
     return this.view(view)
       .catch(next)
       .then((template) => {
+        if (!template) return;
+
+        res.setHeader('Content-Type', 'text/html');
         try {
           res.end(this.react(template, Object.assign({}, options, this.options)));
         } catch (e) {
