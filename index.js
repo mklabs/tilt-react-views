@@ -1,5 +1,6 @@
+const fs       = require('fs');
 const path     = require('path');
-const debug    = require('debug')('views-react');
+const debug    = require('debug')('tilt-react-views');
 const React    = require('react');
 const ReactDOM = require('react-dom/server');
 
@@ -11,11 +12,24 @@ module.exports = class ReactViews {
     this.engine(this.options.engine || 'jsx');
   }
 
-  views(path) {
-    if (!path) throw new Error('Missing path');
-    require('babel-register')(Object.assign({only: path}, { presets: [ 'react', 'es2015', ] }));
-    debug('set views', path);
-    this._views = path;
+  views(paths) {
+    if (!paths) throw new Error('Missing paths');
+
+    paths = Array.isArray(paths) ? paths : [paths];
+
+    debug('Set views', paths);
+
+    require('babel-register')({
+      presets: [ 'react', 'es2015' ]
+
+      // TODO: implement only regex or fn to filter everything not based on this._views
+      // only: (filename) => {
+      //   debug('Babel only %s filename', filename);
+      //   return false;
+      // }
+    });
+
+    this._views = paths;
     return this;
   }
 
@@ -26,15 +40,38 @@ module.exports = class ReactViews {
   }
 
   render(req, res, next, view, options) {
-    debug('Rendering view %s - %s', view, this._views);
-    var filename = path.join(this._views, view + '.' + this._viewEngine);
-    debug('Rendering view %s - %s', view, filename, this._views);
+    options = options || {};
 
-    try {
-      res.end(this.react(filename, Object.assign({}, options, this.options)));
-    } catch (e) {
-      return next(e);
-    }
+    debug('Rendering view %s', view);
+    res.setHeader('Content-Type', 'text/html');
+
+    return this.view(view)
+      .catch(next)
+      .then((template) => {
+        try {
+          res.end(this.react(template, Object.assign({}, options, this.options)));
+        } catch (e) {
+          return next(e);
+        }
+      });
+  }
+
+  view(filename, locations) {
+    return new Promise((r, errback) => {
+      locations = locations || this._views.map(dir => path.join(dir, filename + '.jsx'));
+      var file = locations.shift();
+
+      debug('Lookup view: %s', file);
+      if (!file) return errback(new Error('View ' + filename + ' not found'));
+
+      fs.stat(file, (err, stat) => {
+        if (err && err.code === 'ENOENT') {
+          return this.view(filename, locations).catch(errback).then(r);
+        }
+        if (err) return errback(err);
+        return r(file);
+      });
+    });
   }
 
   react(filename, options) {
