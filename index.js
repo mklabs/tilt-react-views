@@ -21,15 +21,17 @@ module.exports = class ReactViews {
 
     require('babel-register')({
       presets: [ 'react', 'es2015' ],
-      only: (filename) => {
-        return !!paths.find((dir) => {
-          return filename.indexOf(dir) === 0;
-        });
-      }
+      only: this.only.bind(this, paths)
     });
 
     this._views = paths;
     return this;
+  }
+
+  only(paths, filename) {
+    return !!paths.find((dir) => {
+      return filename.indexOf(dir) === 0;
+    });
   }
 
   engine(ext) {
@@ -53,6 +55,17 @@ module.exports = class ReactViews {
           res.end(this.react(template, Object.assign({}, options, this.options)));
         } catch (e) {
           return next(e);
+        } finally {
+          if (process.env.NODE_ENV === 'production') return;
+
+          // Borrowed from: https://github.com/reactjs/express-react-views/blob/master/index.js#L58
+          // Remove all files from the module cache that are in the view folders.
+          Object.keys(require.cache).forEach((module) => {
+            var filename = require.cache[module].filename;
+            if (this.only(this._views, filename)) {
+              delete require.cache[module];
+            }
+          });
         }
       });
   }
