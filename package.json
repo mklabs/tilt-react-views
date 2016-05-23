@@ -1,6 +1,6 @@
 {
   "name": "tilt-react-views",
-  "version": "0.0.1",
+  "version": "0.1.0",
   "description": "An Express like API to render React JSX Views with bare http.Response",
   "main": "index.js",
   "directories": {
