@@ -1,4 +1,4 @@
-# tilt-views-react
+# tilt-react-views [![Build Status](https://secure.travis-ci.org/mklabs/tilt-react-views.png)](http://travis-ci.org/mklabs/tilt-react-views)
 
 This module provides a `ReactViews` class to extend or mixin, that exposes the
 necessary methods to compile and render React components from an HTTP response.
@@ -9,7 +9,7 @@ package aims to offer a similar experience, but without Express.
 
 ## Install
 
-    npm i mklabs/tilt-react-views -S
+    npm i tilt-react-views -S
 
 ## Usage
 
